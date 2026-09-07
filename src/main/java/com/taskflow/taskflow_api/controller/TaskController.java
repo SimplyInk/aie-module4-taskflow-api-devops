@@ -28,13 +28,10 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
     
-    // TODO: Complete this method
-    // Call taskService.findTaskById(id)
-    // Return ResponseEntity.ok(task)
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        // YOUR CODE HERE
-        return null;
+        Task task = taskService.findTaskById(id);
+        return ResponseEntity.ok(task);
     }
     
     @PostMapping

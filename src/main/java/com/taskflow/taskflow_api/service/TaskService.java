@@ -18,12 +18,9 @@ public class TaskService {
         return taskRepository.findAll();
     }
     
-    // TODO: Complete this method
-    // Use taskRepository.findById(id)
-    // If not found, throw new RuntimeException("Task not found with id: " + id)
     public Task findTaskById(Long id) {
-        // YOUR CODE HERE
-        return null;
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
     }
     
     public Task createTask(Task task) {
