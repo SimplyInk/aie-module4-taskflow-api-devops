@@ -1,0 +1,22 @@
+@baseUrl = http://localhost:8088
+
+### Create task
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Complete Module 3",
+  "description": "Finish assignment",
+  "priority": "HIGH",
+  "dueDate": "2026-05-20",
+  "completed": false
+}
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/1
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/2
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/1337
