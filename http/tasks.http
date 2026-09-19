@@ -1,5 +1,24 @@
 @baseUrl = http://localhost:8088
 
+// -------------------------------------------------
+// Get Task(s)
+// -------------------------------------------------
+### Get ALL tasks
+GET {{baseUrl}}/api/tasks
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/1
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/2
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/1337
+
+// -------------------------------------------------
+// Create Task
+// -------------------------------------------------
+
 ### Create task
 POST {{baseUrl}}/api/tasks
 Content-Type: application/json
@@ -12,11 +31,29 @@ Content-Type: application/json
   "completed": false
 }
 
-### Get task by id
-GET {{baseUrl}}/api/tasks/1
 
-### Get task by id
-GET {{baseUrl}}/api/tasks/2
+// -------------------------------------------------
+// Update Task
+// -------------------------------------------------
 
-### Get task by id
-GET {{baseUrl}}/api/tasks/1337
+### Update task by id
+PUT {{baseUrl}}/api/tasks/1
+Content-Type: application/json
+
+{
+  "title": "Complete Module 3 - Updated",
+  "description": "Finish assignment with updates",
+  "priority": "MEDIUM",
+  "dueDate": "2026-05-25",
+  "completed": false
+}
+
+### Complete task by id
+PUT {{baseUrl}}/api/tasks/1/complete
+
+// -------------------------------------------------
+// Delete Task
+// -------------------------------------------------
+
+### Delete task by id
+DELETE {{baseUrl}}/api/tasks/1
