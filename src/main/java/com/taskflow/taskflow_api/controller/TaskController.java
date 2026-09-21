@@ -100,4 +100,13 @@ public class TaskController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
+    // -------------------------------------------------
+    // Miscellaneous
+    // -------------------------------------------------
+    @GetMapping("/summary")
+    public String getTaskSummary() {
+        return taskService.getTaskSummary();
+    }
+
 }

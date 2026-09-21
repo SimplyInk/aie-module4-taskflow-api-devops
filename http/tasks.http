@@ -1,21 +1,6 @@
 @baseUrl = http://localhost:8088
 
 // -------------------------------------------------
-// Get Task(s)
-// -------------------------------------------------
-### Get ALL tasks
-GET {{baseUrl}}/api/tasks
-
-### Get task by id
-GET {{baseUrl}}/api/tasks/1
-
-### Get task by id
-GET {{baseUrl}}/api/tasks/2
-
-### Get task by id
-GET {{baseUrl}}/api/tasks/1337
-
-// -------------------------------------------------
 // Create Task
 // -------------------------------------------------
 
@@ -30,6 +15,159 @@ Content-Type: application/json
   "dueDate": "2026-05-20",
   "completed": false
 }
+
+/*
+HTTP/1.1 201 
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Mon, 21 Sep 2026 08:43:00 GMT
+Connection: close
+
+{
+  "title": "Complete Module 3",
+  "completed": false,
+  "description": "Finish assignment",
+  "priority": "HIGH",
+  "dueDate": "2026-05-20",
+  "id": 1
+}
+*/
+
+### Create task - walk dog
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Walk Dog",
+  "description": "Take the dog for a walk in the park",
+  "priority": "MEDIUM",
+  "dueDate": "2026-05-21",
+  "completed": false
+}
+
+/*
+HTTP/1.1 201 
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Mon, 21 Sep 2026 08:43:19 GMT
+Connection: close
+
+{
+  "title": "Walk Dog",
+  "completed": false,
+  "description": "Take the dog for a walk in the park",
+  "priority": "MEDIUM",
+  "dueDate": "2026-05-21",
+  "id": 2
+}
+
+*/
+
+### Create task - schedule appointment
+POST {{baseUrl}}/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Schedule Appointment",
+  "description": "Book a doctor's appointment",
+  "priority": "HIGH",
+  "dueDate": "2026-05-22",
+  "completed": false
+}
+
+/*
+HTTP/1.1 201 
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Mon, 21 Sep 2026 08:43:33 GMT
+Connection: close
+
+{
+  "title": "Schedule Appointment",
+  "completed": false,
+  "description": "Book a doctor's appointment",
+  "priority": "HIGH",
+  "dueDate": "2026-05-22",
+  "id": 3
+}
+
+*/
+
+// -------------------------------------------------
+// Get Task(s)
+// -------------------------------------------------
+### Get ALL tasks
+GET {{baseUrl}}/api/tasks
+
+/*
+HTTP/1.1 200 
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Mon, 21 Sep 2026 11:45:58 GMT
+Connection: close
+
+[
+  {
+    "title": "Schedule Appointment",
+    "completed": false,
+    "description": "Book a doctor's appointment",
+    "priority": "HIGH",
+    "dueDate": "2026-05-22",
+    "id": 3
+  },
+  {
+    "title": "Complete Module 3 - Updated",
+    "completed": false,
+    "description": "Finish assignment with updates",
+    "priority": "MEDIUM",
+    "dueDate": "2026-05-25",
+    "id": 1
+  },
+  {
+    "title": "Walk Dog",
+    "completed": true,
+    "description": "Take the dog for a walk in the park",
+    "priority": "MEDIUM",
+    "dueDate": "2026-05-21",
+    "id": 2
+  },
+  {
+    "title": "Schedule Appointment",
+    "completed": false,
+    "description": "Book a doctor's appointment",
+    "priority": "HIGH",
+    "dueDate": "2026-05-22",
+    "id": 4
+  },
+  {
+    "title": "Walk Dog",
+    "completed": false,
+    "description": "Take the dog for a walk in the park",
+    "priority": "MEDIUM",
+    "dueDate": "2026-05-21",
+    "id": 5
+  },
+  {
+    "title": "Complete Module 3",
+    "completed": false,
+    "description": "Finish assignment",
+    "priority": "HIGH",
+    "dueDate": "2026-05-20",
+    "id": 6
+  }
+]
+
+*/
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/1
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/2
+
+### Get task by id
+GET {{baseUrl}}/api/tasks/1337
+
 
 
 // -------------------------------------------------
@@ -48,8 +186,43 @@ Content-Type: application/json
   "completed": false
 }
 
+/*
+HTTP/1.1 200 
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Mon, 21 Sep 2026 09:42:29 GMT
+Connection: close
+
+{
+  "title": "Complete Module 3 - Updated",
+  "completed": false,
+  "description": "Finish assignment with updates",
+  "priority": "MEDIUM",
+  "dueDate": "2026-05-25",
+  "id": 1
+}
+
+*/
+
 ### Complete task by id
-PUT {{baseUrl}}/api/tasks/1/complete
+PUT {{baseUrl}}/api/tasks/2/complete
+
+/*
+HTTP/1.1 200 
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Mon, 21 Sep 2026 09:42:49 GMT
+Connection: close
+
+{
+  "title": "Walk Dog",
+  "completed": true,
+  "description": "Take the dog for a walk in the park",
+  "priority": "MEDIUM",
+  "dueDate": "2026-05-21",
+  "id": 2
+}
+*/
 
 // -------------------------------------------------
 // Delete Task
@@ -57,3 +230,28 @@ PUT {{baseUrl}}/api/tasks/1/complete
 
 ### Delete task by id
 DELETE {{baseUrl}}/api/tasks/1
+
+
+// -------------------------------------------------
+// Miscellaneous
+// -------------------------------------------------
+
+### Summarise tasks
+GET {{baseUrl}}/api/tasks/summary
+
+/*
+HTTP/1.1 200 
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 256
+Date: Mon, 21 Sep 2026 10:41:57 GMT
+Connection: close
+
+
+
+Of the tasks listed:
+
+*   **Pending:** You have two tasks to do. You need to schedule a doctor's appointment (high priority) and finish the updated assignment for Module 3 (medium priority).
+*   **Completed:** The task of walking the dog is already done.
+
+*/
+### End of tasks HTTP requests
