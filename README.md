@@ -108,13 +108,13 @@ source ~/.bashrc
 source ~/.zshrc
 ```
 
-3. **Verify it's set**:
+3. **Verify it's set** (prints the length only, so the key stays off your screen):
 
 ```bash
-echo $OPENAI_API_KEY
+[ -n "$OPENAI_API_KEY" ] && echo "set (${#OPENAI_API_KEY} chars)" || echo "not set"
 ```
 
-You should see your API key printed.
+You should see `set (<number> chars)`. This confirms the variable is set, not that the key is valid. Test the key with the summary endpoint.
 
 #### Option 2: Set Temporarily (For Current Session Only)
 
