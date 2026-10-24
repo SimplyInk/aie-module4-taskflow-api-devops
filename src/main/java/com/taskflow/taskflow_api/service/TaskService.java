@@ -33,6 +33,10 @@ public class TaskService {
     }
 
     public Task createTask(Task task) {
+        // JSON bodies without "completed" leave the field null, which violates the NOT NULL column
+        if (task.getCompleted() == null) {
+            task.setCompleted(false);
+        }
         return taskRepository.save(task);
     }
 
