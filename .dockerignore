@@ -1,0 +1,17 @@
+# Keep the build context small and keep local-only files out of Docker builds.
+# The Dockerfile only copies pom.xml and src/, so these never reach the image.
+.git
+.gitignore
+.ai
+.ignore
+target
+.idea
+.vscode
+.env
+.env.*
+*.iml
+*.zip
+*.pdf
+*.pdf:Zone.Identifier
+http
+HELP.md
