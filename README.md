@@ -2,6 +2,146 @@
 
 A Spring Boot task management backend API with CRUD operations and AI-powered task summarization.
 
+## Module 4: Docker & Railway Deployment
+
+**Live application URL:** https://aie-module4-taskflow-api-devops-production.up.railway.app/api/tasks
+
+### Dockerfile
+
+The `Dockerfile` is a multi-stage build. Stage 1 builds the JAR with Maven, and stage 2 copies only the JAR into a slim JRE image. Railway builds the image from the GitHub repo, so no local build is needed.
+
+This Dockerfile differs from the assignment template. It copies `pom.xml` and runs `mvn dependency:go-offline` before copying `src/`, so rebuilds reuse the dependency cache. The two stages and the final `CMD` are the same as the template.
+
+### Build and run the Docker image locally
+
+```bash
+# Build the image
+docker build -t taskflow:latest .
+
+# Run the app and PostgreSQL together (PostgreSQL data is kept in the taskflow-db-data volume)
+docker compose up -d --build
+
+# In a second terminal, test the application
+curl http://localhost:8080/api/tasks
+
+# Stop the containers (add -v to also delete the database volume)
+docker compose down
+```
+
+Compose wires the app to its PostgreSQL container, so no local database setup is needed. The local PostgreSQL server is not used by this run. Compose publishes PostgreSQL on host port `5432`, so stop the local server first (`sudo service postgresql stop`) or the database container will fail to start.
+
+`OPENAI_API_KEY` is read from your shell environment, not stored in the repo.
+
+### Railway setup
+
+1. **Create the app service.** In the Railway project, click **New → GitHub Repo** and select the TaskFlow repository. Railway builds the root `Dockerfile` automatically.
+2. **Create the database.** In the same project, click **New → Database → PostgreSQL**. Railway creates a service named `Postgres` with its own connection variables.
+3. **Connect the app to the database.** Open the app service, go to **Variables**, and add these. The `${{Postgres.…}}` values are Railway reference variables, so the password is never typed out or committed:
+
+   | Variable | Value |
+   | --- | --- |
+   | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}` |
+   | `SPRING_DATASOURCE_USERNAME` | `${{Postgres.PGUSER}}` |
+   | `SPRING_DATASOURCE_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
+
+<img src="screenshots/variables.jpg" alt="Variables" width="50%">
+
+4. **Add the AI key for the summary endpoint.** The app calls OpenRouter (`spring.ai.openai.base-url=https://openrouter.ai/api/v1`), so create a key at openrouter.ai/keys and add it as `OPENAI_API_KEY` in the same Variables tab. Do not commit it or put it in the Dockerfile.
+5. **Deploy and expose the app.** Railway redeploys when variables change. Check the deploy logs for `Started TaskflowApiApplication`. Then go to **Settings → Networking**, click **Generate Domain**, and set the port to `8080`.
+
+The app's `application.properties` reads these variables, and it defaults to `localhost:5432` if they're unset. Railway's dashboard is the source of truth for the exact service name and variable names, so check them there if a reference doesn't resolve.
+
+### Screenshots
+
+<img src="screenshots/railway-dashboard.jpg" alt="Railway dashboard" width="60%">
+
+<img src="screenshots/live-app.jpg" alt="Live app" width="60%">
+
+### Deployment Verification
+
+Tests run against the live Railway URL, in this order:
+
+* check the initial state
+* create a task
+* list tasks again
+* request the AI summary
+
+```bash
+RAILWAY=https://aie-module4-taskflow-api-devops-production.up.railway.app
+```
+<img src="screenshots/0-railway-uri.jpg" alt="Railway URI" width="80%">
+
+On a fresh database, step 1 returns `[]`.
+
+```bash
+# 1. Initial state: the database starts empty
+curl -i $RAILWAY/api/tasks
+# HTTP/2 200
+# []
+```
+
+<img src="screenshots/1-get-tasks.jpg" alt="Railway URI" width="80%">
+
+```bash
+# 2. Create a task
+curl -i -X POST $RAILWAY/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Railway task","priority":"LOW"}'
+# HTTP/2 201
+# {"title":"Railway task","completed":false,"description":null,"priority":"LOW","dueDate":null,"id":1}
+```
+
+<img src="screenshots/2-create-task.jpg" alt="Railway URI" width="80%">
+
+```bash
+# 3. List tasks again: the new task is returned
+curl -i $RAILWAY/api/tasks
+# HTTP/2 200
+# [{"title":"Railway task","completed":false,"description":null,"priority":"LOW","dueDate":null,"id":1}]
+```
+
+<img src="screenshots/3-get-tasks.jpg" alt="Railway URI" width="80%">
+
+```bash
+# 4. AI summary (uses OPENAI_API_KEY from Railway Variables)
+curl -i $RAILWAY/api/tasks/summary
+# HTTP/2 200
+# Here's a quick summary:
+# - **Pending:** There's one task in the list called "Railway task." ...
+```
+
+<img src="screenshots/4-summary-endpoint.jpg" alt="Summary" width="80%">
+
+### Errors and failures
+
+- **`docker build -t taskflow:latest .`** completed successfully.
+- **`docker run -p 8080:8080 taskflow:latest`** started the app, but it exited during startup with:
+  - `Connection to localhost:5432 refused`
+  - `Failed to initialize JPA EntityManagerFactory: Unable to determine Dialect without JDBC metadata`
+
+The app needs a reachable PostgreSQL server at startup, and it fails immediately if it can't connect. Two causes gave the same `Connection to localhost:5432 refused` error:
+
+- **Container networking:** `docker run` gave the container its own `localhost`, where no PostgreSQL runs, so the container couldn't reach the local server. Workaround: `docker compose up -d --build`, which starts PostgreSQL alongside the app.
+- **Local server stopped:** on this machine PostgreSQL doesn't autostart, so it has to be started with `sudo service postgresql start` before any run that uses it.
+
+The Railway deployment is unaffected because it uses its own database.
+
+### Database
+
+The app uses PostgreSQL rather than the in-memory H2 database from the Module 3 guide. This was what I submitted for Module 3 and kept for Module 4. The app reads its connection settings from `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`, defaulting to `localhost:5432`. Inside Docker the default doesn't reach a database, so the local run uses `docker compose`, which starts a PostgreSQL container and connects the app to it. Railway uses its own PostgreSQL service.
+
+### Stretch goal
+
+_Not attempted. The PostgreSQL change above is an extension from Module 3, not one of the Module 4 stretch goal options._
+
+---
+
+# Module 3: TaskFlow - Task Management API
+
+> This is the README committed in Module 3, kept unchanged for reference.
+> Its local setup runs the app against a PostgreSQL server on the host machine.  
+> The current Module 4 run uses Docker Compose, described at the top of this file.
+
 ## Prerequisites
 
 - Java 21+
